@@ -19,6 +19,7 @@ import "./App.css";
 
 const App = () => {
   const [input, setInput] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
   const dispatch = useDispatch();
   const list = useSelector((state) => state.todoreducer.list);
 
@@ -37,11 +38,21 @@ const App = () => {
     dispatch(removetodo());
   };
 
+  const sortedList = [...list].sort((a, b) => {
+    if (sortOrder === "newest") {
+      
+      return Number(b.id) - Number(a.id);
+    } else {
+     
+      return Number(a.id) - Number(b.id);
+    }
+  });
+
   return (
     <Container maxWidth="sm" className="todo-container">
       <Paper className="todo-paper" elevation={4}>
         <Typography variant="h4" align="center" className="todo-title">
-          Redux Todo App
+         Todo App
         </Typography>
 
         <div className="input-section">
@@ -63,8 +74,25 @@ const App = () => {
           </Button>
         </div>
 
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <Button
+            size="small"
+            variant={sortOrder === "newest" ? "contained" : "outlined"}
+            onClick={() => setSortOrder("newest")}
+          >
+            Newest
+          </Button>
+          <Button
+            size="small"
+            variant={sortOrder === "oldest" ? "contained" : "outlined"}
+            onClick={() => setSortOrder("oldest")}
+          >
+            Oldest
+          </Button>
+        </div>
+
         <List className="todo-list">
-          {list.map((item) => (
+          {sortedList.map((item) => (
             <ListItem
               key={item.id}
               className="todo-item"
