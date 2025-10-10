@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addtodo, deletetodo, removetodo } from "./actions/action";
+import { addtodo, deletetodo, removetodo, updatetodo } from "./actions/action";
 import {
   Container,
   TextField,
@@ -13,6 +13,7 @@ import {
   Paper,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
 import AddIcon from "@mui/icons-material/Add";
 import "./App.css"; 
@@ -20,18 +21,35 @@ import "./App.css";
 const App = () => {
   const [input, setInput] = useState("");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [editingId, setEditingId] = useState(null);
   const dispatch = useDispatch();
   const list = useSelector((state) => state.todoreducer.list);
 
   const handleAdd = () => {
     if (input.trim() !== "") {
-      dispatch(addtodo(input));
+      if (editingId) {
+        
+        dispatch(updatetodo(editingId, input));
+        setEditingId(null);
+      } else {
+        dispatch(addtodo(input));
+      }
       setInput("");
     }
   };
 
   const handleDelete = (id) => {
     dispatch(deletetodo(id));
+  };
+
+  const handleEdit = (item) => {
+    setInput(item.data);
+    setEditingId(item.id);
+  };
+
+  const handleCancelEdit = () => {
+    setInput("");
+    setEditingId(null);
   };
 
   const handleRemoveAll = () => {
@@ -70,7 +88,7 @@ const App = () => {
             onClick={handleAdd}
             startIcon={<AddIcon />}
           >
-            Add
+            {editingId ? "Update" : "Add"}
           </Button>
         </div>
 
@@ -97,9 +115,14 @@ const App = () => {
               key={item.id}
               className="todo-item"
               secondaryAction={
-                <IconButton edge="end" onClick={() => handleDelete(item.id)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <IconButton edge="end" onClick={() => handleEdit(item)}>
+                    <EditIcon color="primary" />
+                  </IconButton>
+                  <IconButton edge="end" onClick={() => handleDelete(item.id)}>
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </div>
               }
             >
               <ListItemText primary={item.data} />
@@ -119,6 +142,13 @@ const App = () => {
             Clear All
           </Button>
         )}
+          {editingId && (
+            <div style={{ marginTop: 8 }}>
+              <Button variant="text" onClick={handleCancelEdit}>
+                Cancel Edit
+              </Button>
+            </div>
+          )}
       </Paper>
     </Container>
   );

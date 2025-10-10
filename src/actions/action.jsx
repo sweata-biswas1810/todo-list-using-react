@@ -20,3 +20,10 @@ export const removetodo = () => {
     type: "removetodo",
   };
 };
+
+export const updatetodo = (id, newData) => {
+  return {
+    type: "updatetodo",
+    payload: { id, data: newData },
+  };
+};
